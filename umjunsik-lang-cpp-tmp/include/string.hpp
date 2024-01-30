@@ -4,12 +4,10 @@
 #include <cstddef>
 #include <type_traits>
 
+#include "integral.hpp"
 #include "type_list.hpp"
 
 namespace umm {
-
-template <char C>
-using char_t = std::integral_constant<char, C>;
 
 template <char C, char... Cs>
 struct char_list {
