@@ -1,6 +1,8 @@
 #ifndef __TYPE_LIST_HPP__
 #define __TYPE_LIST_HPP__
 
+#include <type_traits>
+
 namespace umm {
 struct nil {
     using car = nil;
@@ -60,6 +62,52 @@ struct append<cons<TCar, TCdr>, TElement> {
 
 template <typename TList, typename TElement>
 using append_t = typename append<TList, TElement>::type;
+
+template <typename TList1, typename TList2>
+struct concat;
+
+template <typename TList1>
+struct concat<TList1, nil> {
+    using type = TList1;
+};
+
+template <typename TList2>
+struct concat<nil, TList2> {
+    using type = TList2;
+};
+
+template <typename TCar, typename TCdr, typename TList2>
+struct concat<cons<TCar, TCdr>, TList2> {
+    using type = cons<TCar, typename concat<TCdr, TList2>::type>;
+};
+
+template <typename TList1, typename TList2>
+using concat_t = typename concat<TList1, TList2>::type;
+
+template <typename THaystack, typename TNeedle>
+struct starts_with;
+
+template <typename THaystack>
+struct starts_with<THaystack, nil> {
+    using type = std::true_type;
+    using rest = THaystack;
+};
+
+template <typename TCar, typename THaystackCdr, typename TNeedleCdr>
+struct starts_with<cons<TCar, THaystackCdr>, cons<TCar, TNeedleCdr>> {
+    using type = typename starts_with<THaystackCdr, TNeedleCdr>::type;
+    using rest = THaystackCdr;
+};
+
+template <typename THaystackCar, typename THaystackCdr, typename TNeedleCar, typename TNeedleCdr>
+struct starts_with<cons<THaystackCar, THaystackCdr>, cons<TNeedleCar, TNeedleCdr>> {
+    using type = std::false_type;
+    using rest = nil;
+};
+
+template <typename THaystack, typename TNeedle>
+using starts_with_t = typename starts_with<THaystack, TNeedle>::type;
+
 }
 
 #endif // __TYPE_LIST_HPP__
